@@ -14,15 +14,9 @@ class MINISHOOTER_API UShooterCharacterMovement : public UCharacterMovementCompo
 public:
 	// Sets default values for this component's properties
 	UShooterCharacterMovement();
+	virtual float GetMaxSpeed() const override;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
-	virtual float GetMaxSpeed() const override;
-
-public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
 };

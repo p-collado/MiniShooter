@@ -14,10 +14,15 @@ class AMiniShooterHud;
  * 
  */
 
+
+
 UCLASS()
 class MINISHOOTER_API UShooterHUD : public UUserWidget
 {
 	GENERATED_BODY()
+
+	float CurrentHealth = 0.f;
+	float CurrentMaxHealth = 0.f;
 	
 public:
 
@@ -36,9 +41,14 @@ public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UTextBlock* MaxValueHealthText;
 
+	void BindDelegates();
+
+	UFUNCTION()
+	void UpdateHealth(const float Value);
+	UFUNCTION()
+	void UpdateMaxHealth(const float Value);
 	
 	void SetHudOwner(AMiniShooterHud* owner) {ShooterHud = owner;}
 	void SetOwner(ACharacterBase* Char) { Character = Char;}
-	virtual void NativeConstruct() override;
-
+	
 };

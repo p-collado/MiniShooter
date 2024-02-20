@@ -3,6 +3,8 @@
 
 #include "MiniShooterAbilitySystemComponent.h"
 
+#include "Abilities/ShooterGameplayAbilityBase.h"
+
 
 // Sets default values for this component's properties
 UMiniShooterAbilitySystemComponent::UMiniShooterAbilitySystemComponent()
@@ -32,5 +34,69 @@ void UMiniShooterAbilitySystemComponent::TickComponent(float DeltaTime, ELevelTi
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UMiniShooterAbilitySystemComponent::AddCharacterAbilities(
+	const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities)
+{
+	for (const TSubclassOf<UGameplayAbility> AbilityClass : StartupAbilities)
+	{
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass,1);
+		if (const UShooterGameplayAbilityBase* AuraGameplayAbility =  Cast<UShooterGameplayAbilityBase>(AbilitySpec.Ability))
+		{
+			AbilitySpec.DynamicAbilityTags.AddTag(AuraGameplayAbility->StartupInputTag);
+			GiveAbility(AbilitySpec);
+		}
+	}
+	bStartupAbilitiesGiven = true;
+}
+
+void UMiniShooterAbilitySystemComponent::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	if (!InputTag.IsValid())
+	{
+		return;
+	}
+
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			AbilitySpecInputReleased(AbilitySpec);
+		}
+	}
+}
+
+void UMiniShooterAbilitySystemComponent::AbilityInputTagHeld(FGameplayTag InputTag)
+{
+	if (!InputTag.IsValid())
+	{
+		return;
+	}
+
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			AbilitySpecInputPressed(AbilitySpec);
+			if (!AbilitySpec.IsActive())
+			{
+				TryActivateAbility(AbilitySpec.Handle);
+			}
+		}
+	}
+}
+
+FGameplayTag UMiniShooterAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	for (FGameplayTag Tag : AbilitySpec.DynamicAbilityTags)
+	{
+		if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Input"))))
+		{
+			return Tag;
+		}
+	}
+
+	return FGameplayTag();
 }
 

@@ -2,8 +2,8 @@
 
 
 #include "ShooterCharacterMovement.h"
+
 #include "MiniShooter/Character/CharacterBase.h"
-#include "MiniShooter/GAS/MiniShooterAttributeSet.h"
 
 // Sets default values for this component's properties
 UShooterCharacterMovement::UShooterCharacterMovement()
@@ -28,35 +28,5 @@ void UShooterCharacterMovement::BeginPlay()
 
 float UShooterCharacterMovement::GetMaxSpeed() const
 {
-	ACharacterBase* CharRef = Cast<ACharacterBase>(GetOwner());
-
-	if (!CharRef)
-	{
-		return Super::GetMaxSpeed();
-	}
-
-	const UMiniShooterAttributeSet* Set = CharRef->GetAttributeSet();
-	
-	if (Set && IsCrouching())
-	{
-		return Set->GetCrouchSpeed();
-	}
-	
-	if (Set)
-	{
-		return Set->GetMovSpeed();
-	}
-
-	return 0.0f;
+	return Cast<ACharacterBase>(GetOwner())->GetSpeed();
 }
-
-
-// Called every frame
-void UShooterCharacterMovement::TickComponent(float DeltaTime, ELevelTick TickType,
-                                              FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-

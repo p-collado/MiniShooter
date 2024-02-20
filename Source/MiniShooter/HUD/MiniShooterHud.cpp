@@ -3,14 +3,13 @@
 
 #include "MiniShooterHud.h"
 
-#include "EnhancedInputComponent.h"
 #include "ShooterHUD.h"
 #include "ShooterMainMenu.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
-#include "MiniShooter/Character/CharacterBase.h"
-#include "MiniShooter/Character/ShooterPlayerController.h"
+#include "MiniShooter/Character/PlayerCharacter.h"
+#include "MiniShooter/Player/ShooterPlayerController.h"
 #include "MiniShooter/GAS/MiniShooterAttributeSet.h"
 
 void AMiniShooterHud::ShowHUDOf(UUserWidget* MenuToShow)
@@ -29,7 +28,7 @@ void AMiniShooterHud::InitPlayerHUDValues() const
 	{
 		PlayerHUD->LifeBar->SetPercent(100);
 
-		const UMiniShooterAttributeSet* Set = CharacterRef->GetAttributeSet();
+		const UMiniShooterAttributeSet* Set = Cast<UMiniShooterAttributeSet>(CharacterRef->GetAttributeSet());
 
 		if (Set)
 		{
@@ -118,28 +117,56 @@ void AMiniShooterHud::QuitGame()
 	FGenericPlatformMisc::RequestExit(false);
 }
 
-void AMiniShooterHud::OnHealthChanged(const float Value)
+// void AMiniShooterHud::OnHealthChanged(const float Value)
+// {
+// 	PlayerHUD->LifeBar->SetPercent(Value / CharacterRef->GetAttributeSet()->GetMaxHealth());
+// 	PlayerHUD->CurrentValueHealthText->SetText(FText::AsNumber(Value));
+// }
+
+void AMiniShooterHud::BroadCastInitialValues()
 {
-	PlayerHUD->LifeBar->SetPercent(Value / CharacterRef->GetAttributeSet()->GetMaxHealth());
-	PlayerHUD->CurrentValueHealthText->SetText(FText::AsNumber(Value));
+	PlayerHUD->BindDelegates();
+	
+	OnHealthChange.Broadcast(Cast<UMiniShooterAttributeSet>(PlayerParams.AttributeSet)->GetHealth());
+	OnMaxHealthChange.Broadcast(Cast<UMiniShooterAttributeSet>(PlayerParams.AttributeSet)->GetMaxHealth());
+}
+
+void AMiniShooterHud::GetPlayerParams(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* ATS)
+{
+	PlayerParams.PlayerController = PC;
+	PlayerParams.PlayerState = PS;
+	PlayerParams.AbilitySystemComponent = ASC;
+	PlayerParams.AttributeSet = ATS;
+}
+
+void AMiniShooterHud::BindCallbackDependencies()
+{
+	UMiniShooterAttributeSet* ATS = Cast<UMiniShooterAttributeSet>(PlayerParams.AttributeSet);
+
+	PlayerParams.AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		ATS->GetHealthAttribute()).AddLambda(
+[this](const FOnAttributeChangeData& Data)
+		{
+			OnHealthChange.Broadcast(Data.NewValue);
+		}
+	);
+
+	PlayerParams.AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+	ATS->GetMaxHealthAttribute()).AddLambda(
+[this](const FOnAttributeChangeData& Data)
+		{
+			OnMaxHealthChange.Broadcast(Data.NewValue);
+		}
+	);
 }
 
 void AMiniShooterHud::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CharacterRef = Cast<ACharacterBase>(GetOwningPawn());
-	
-	CreateMenus();
+	CharacterRef = Cast<APlayerCharacter>(GetOwningPawn());
 
-	APlayerController* PC = Cast<APlayerController>(GetOwningPlayerController());
-	
-	UEnhancedInputComponent* input = Cast<UEnhancedInputComponent>(PC->InputComponent.Get());
-	
-	if (PC)
-	{
-		FHealthChange& Delegate = CharacterRef->OnHealthChange;
-		Delegate.AddDynamic(this, &AMiniShooterHud::OnHealthChanged);
-		ShowHUDOf(PlayerHUD);
-	}
+	// FHealthChange& Delegate = CharacterRef->OnHealthChange;
+	// Delegate.AddDynamic(this, &AMiniShooterHud::OnHealthChanged);
+	ShowHUDOf(PlayerHUD);
 }

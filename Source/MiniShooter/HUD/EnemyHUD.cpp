@@ -5,29 +5,21 @@
 
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
-#include "MiniShooter/AI/ShooterEnemy.h"
-#include "MiniShooter/GAS/MiniShooterAttributeSet.h"
+#include "MiniShooter/Character/ShooterEnemy.h"
 
-void UEnemyHUD::NativeConstruct()
+void UEnemyHUD::SetCurrentMaxLife(float Value)
 {
-	Super::NativeConstruct();
+	CurrentMaxLife = Value;
+}
 
-	LifeBar->SetPercent(100);
-	
-	if(EnemyRef)
-	{
-		const UMiniShooterAttributeSet* Set = EnemyRef->GetAttributeSet();
-
-		if (Set)
-		{
-			LifeValue->SetText(FText::AsNumber(Set->GetMaxHealth()));
-			EnemyRef->OnHealthChange.AddUniqueDynamic(this, &UEnemyHUD::ChangeLifeValue);
-		}
-	}
+void UEnemyHUD::BindDelegates()
+{
+	EnemyRef->OnHealthChange.AddUniqueDynamic(this, &UEnemyHUD::ChangeLifeValue);
 }
 
 void UEnemyHUD::ChangeLifeValue(const float NewValue)
 {
-	LifeBar->SetPercent(NewValue / EnemyRef->GetAttributeSet()->GetMaxHealth());
-	LifeValue->SetText(FText::AsNumber(NewValue));
+	CurrentLife = NewValue;
+	LifeBar->SetPercent(CurrentLife / CurrentMaxLife);
+	LifeValue->SetText(FText::AsNumber(CurrentLife));
 }

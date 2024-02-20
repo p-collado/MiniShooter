@@ -18,9 +18,14 @@ class MINISHOOTER_API UEnemyHUD : public UUserWidget
 {
 	GENERATED_BODY()
 
+	float CurrentLife = 0.f;
+	float CurrentMaxLife = 0.f;
+
 public:
 
-	virtual void NativeConstruct() override;
+	void SetCurrentMaxLife(float Value);
+	
+	void BindDelegates();
 
 	void SetCharacterOwner(AShooterEnemy* Char){ EnemyRef =  Char; }
 

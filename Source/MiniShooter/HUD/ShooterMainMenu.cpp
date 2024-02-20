@@ -4,7 +4,7 @@
 #include "ShooterMainMenu.h"
 #include "MiniShooterHud.h"
 #include "Components/Button.h"
-#include "MiniShooter/Character/ShooterPlayerController.h"
+#include "MiniShooter/Player/ShooterPlayerController.h"
 
 void UShooterMainMenu::NativeConstruct()
 {

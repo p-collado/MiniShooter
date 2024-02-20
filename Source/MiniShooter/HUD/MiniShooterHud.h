@@ -6,12 +6,36 @@
 #include "GameFramework/HUD.h"
 #include "MiniShooterHud.generated.h"
 
-/**
- * 
- */
-
+class UAttributeSet;
+class UShooterMainMenu;
+class APlayerCharacter;
 class UShooterHUD;
-class ACharacterBase;
+class UAbilitySystemComponent;
+
+USTRUCT(BlueprintType)
+struct FWidgetControllerParams
+{
+	GENERATED_BODY()
+
+	FWidgetControllerParams(){}
+	FWidgetControllerParams(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* ATS)
+		:  PlayerController(PC)
+		, PlayerState(PS)
+		, AbilitySystemComponent(ASC)
+		, AttributeSet(ATS)
+	{}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<APlayerController> PlayerController = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<APlayerState> PlayerState = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UAttributeSet> AttributeSet = nullptr;
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangeSignature,const float, CharacterHealth);
 
 UCLASS()
 class MINISHOOTER_API AMiniShooterHud : public AHUD
@@ -22,6 +46,12 @@ class MINISHOOTER_API AMiniShooterHud : public AHUD
 	static void RemoveMenu(UUserWidget* MenuToRemove);
 
 public:
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangeSignature OnHealthChange;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangeSignature OnMaxHealthChange;
 
 	void InitPlayerHUDValues() const;
 
@@ -57,17 +87,25 @@ public:
 
 	UFUNCTION(Blueprintable)
 	UUserWidget* GetDeathMenu() const { return DeathMenu; }
+	
+	// //Delegates functions
+	// UFUNCTION()
+	// void OnHealthChanged(const float Value);
 
+	void BroadCastInitialValues();
 
-	//Delegates functions
-	UFUNCTION()
-	void OnHealthChanged(const float Value);
+	void GetPlayerParams(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* ATS);
 
+	void BindCallbackDependencies();
+
+	UPROPERTY()
+	FWidgetControllerParams PlayerParams;
+	
 protected:
 
 	virtual void BeginPlay() override;
 	
-
+	//Class pointers
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> MainMenuClass;
 
@@ -80,6 +118,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> PlayerHUDClass;
 
+	//Widgets Pointers
 	UPROPERTY(VisibleDefaultsOnly)
 	UShooterHUD* PlayerHUD;
 
@@ -88,7 +127,7 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly)
 	UUserWidget* DeathMenu;
-
+	
 	UPROPERTY(VisibleDefaultsOnly)
-	ACharacterBase* CharacterRef;
+	APlayerCharacter* CharacterRef;
 };

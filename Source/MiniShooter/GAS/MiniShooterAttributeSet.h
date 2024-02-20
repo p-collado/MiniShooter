@@ -22,7 +22,7 @@ class MINISHOOTER_API UMiniShooterAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
-
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 
 public:
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
@@ -52,4 +52,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Category = "Movement")
 	FGameplayAttributeData CrouchSpeed;
 	ATTRIBUTE_ACCESSORS(UMiniShooterAttributeSet, CrouchSpeed)
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Category = "Combat")
+	FGameplayAttributeData Armor;
+	ATTRIBUTE_ACCESSORS(UMiniShooterAttributeSet, Armor)
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Category = "Combat")
+	FGameplayAttributeData FireRate;
+	ATTRIBUTE_ACCESSORS(UMiniShooterAttributeSet, FireRate)
 };
