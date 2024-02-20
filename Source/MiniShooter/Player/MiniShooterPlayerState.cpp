@@ -3,12 +3,12 @@
 
 #include "MiniShooter/Player/MiniShooterPlayerState.h"
 
-#include "AbilitySystemComponent.h"
+#include "MiniShooter/GAS/MiniShooterAbilitySystemComponent.h"
 #include "MiniShooter/GAS/MiniShooterAttributeSet.h"
 
 AMiniShooterPlayerState::AMiniShooterPlayerState()
 {
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>("AbilitySystemCmp");
+	AbilitySystemComponent = CreateDefaultSubobject<UMiniShooterAbilitySystemComponent>("AbilitySystemCmp");
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 

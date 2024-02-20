@@ -47,7 +47,7 @@ void AShooterPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(PauseMenuAction, ETriggerEvent::Started, this, &AShooterPlayerController::Pause);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::LookAt);
 	EnhancedInputComponent->BindAction(TabAction, ETriggerEvent::Started, this, &AShooterPlayerController::OpenInventory);
-	
+	EnhancedInputComponent->BindAbilityInputActions(InputConfig, this, &ThisClass::InputPressed, &ThisClass::InputReleased, &ThisClass::InputHeld);
 }
 
 UMiniShooterAbilitySystemComponent* AShooterPlayerController::GetASC()

@@ -4,6 +4,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "GameplayEffect.h"
+#include "MiniShooter/GAS/MiniShooterAbilitySystemComponent.h"
 #include "MiniShooter/GAS/MiniShooterAttributeSet.h"
 
 // Sets default values
@@ -36,4 +37,11 @@ void ACharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffe
 	GameplayEffectContextHandle.AddSourceObject(this);
 	const FGameplayEffectSpecHandle GameplayEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffect, Level, GameplayEffectContextHandle);
 	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*GameplayEffectSpecHandle.Data.Get(), GetAbilitySystemComponent());
+}
+
+void ACharacterBase::AddCharacterAbilities()
+{
+	UMiniShooterAbilitySystemComponent* ASC = CastChecked<UMiniShooterAbilitySystemComponent>(AbilitySystemComponent);
+
+	ASC->AddCharacterAbilities(StartupAbilities);
 }

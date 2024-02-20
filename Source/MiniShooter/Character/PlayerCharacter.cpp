@@ -15,9 +15,6 @@
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
 
-
-int FAbilityInputBinding::IDCounter = 0;
-
 void APlayerCharacter::InitializeInitAttributes()
 {
 	ApplyEffectToSelf(DefaultEffectAttributes, 1.f);
@@ -102,6 +99,8 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 			HUD->BroadCastInitialValues();
 		}
 	}
+
+	AddCharacterAbilities();
 }
 
 // Called every frame

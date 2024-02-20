@@ -7,26 +7,12 @@
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
+class UGameplayAbility;
 //Forward Declarations
 class UAttributeSet;
 class UAbilitySystemComponent;
 class UDataTable;
 class UGameplayEffect;
-
-USTRUCT(BlueprintType)
-struct FCombatUtils
-{
-	GENERATED_BODY()
-
-	FCombatUtils(){};
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FVector ShootPosition;
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FVector ShootDirection;
-	
-};
 
 class USkeletalMeshComponent;
 
@@ -36,9 +22,6 @@ class MINISHOOTER_API ACharacterBase : public ACharacter, public IAbilitySystemI
 	GENERATED_BODY()
 
 public:
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FCombatUtils CombatUtils;
 
 	// Sets default values for this character's properties
 	ACharacterBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
@@ -59,6 +42,11 @@ protected:
 
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffect, float Level) const;
 
+	void AddCharacterAbilities();
+
+	UPROPERTY(EditAnywhere, Category= "Abilities")
+	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category= "Attributes")
 	TSubclassOf<UGameplayEffect> DefaultEffectAttributes;
 
@@ -66,9 +54,6 @@ protected:
 	TObjectPtr<UAttributeSet> AttributeSet;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="GAS")
-	UAbilitySystemComponent* AbilitySystemComponent;
-
-	UPROPERTY(EditAnywhere, Category="GAS")
-	UDataTable* InitTable;
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 	
 };

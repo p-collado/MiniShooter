@@ -11,6 +11,7 @@
  * 
  */
 
+class UMiniShooterInputConfig;
 class UMiniShooterAbilitySystemComponent;
 struct FInputActionValue;
 class UInputAction;
@@ -44,6 +45,8 @@ private:
 	TObjectPtr<UInputAction> PauseMenuAction;
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> LookAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UMiniShooterInputConfig> InputConfig;
 
 	UPROPERTY()
 	TObjectPtr<UMiniShooterAbilitySystemComponent> MiniShooterAbilitySystemComponent;

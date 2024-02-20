@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerState.h"
 #include "MiniShooterPlayerState.generated.h"
 
+class UMiniShooterAbilitySystemComponent;
+class UMiniShooterAttributeSet;
 class UAttributeSet;
 
 /**
@@ -29,5 +31,5 @@ protected:
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GAS")
-	UAttributeSet* AttributeSet;
+	TObjectPtr<UAttributeSet> AttributeSet;
 };
