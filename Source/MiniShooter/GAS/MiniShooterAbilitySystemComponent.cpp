@@ -16,26 +16,6 @@ UMiniShooterAbilitySystemComponent::UMiniShooterAbilitySystemComponent()
 	// ...
 }
 
-
-// Called when the game starts
-void UMiniShooterAbilitySystemComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-
-// Called every frame
-void UMiniShooterAbilitySystemComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                                       FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
 void UMiniShooterAbilitySystemComponent::AddCharacterAbilities(
 	const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities)
 {

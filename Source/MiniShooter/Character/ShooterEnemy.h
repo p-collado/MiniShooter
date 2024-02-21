@@ -24,7 +24,11 @@ class MINISHOOTER_API AShooterEnemy : public ACharacterBase
 public:
 	// Sets default values for this character's properties
 	AShooterEnemy(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
+
+	//Begin Combat Interface
+	virtual FVector GetSocketLocation_Implementation() override;
+	virtual FVector GetForwardVector_Implementation() override;
+	//End Combat Interface
 
 protected:
 
@@ -40,8 +44,6 @@ protected:
 	virtual void PostInitializeComponents() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 	
 	UPROPERTY(EditAnywhere, Category= "HUD")
 	UWidgetComponent* WidgetComponent;

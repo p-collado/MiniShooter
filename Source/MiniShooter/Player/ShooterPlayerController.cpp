@@ -107,7 +107,7 @@ void AShooterPlayerController::InputHeld(FGameplayTag InputTag)
 {
 	if(GetASC())
 	{
-		GetASC()->AbilityInputTagReleased(InputTag);
+		GetASC()->AbilityInputTagHeld(InputTag);
 	}
 }
 
@@ -115,6 +115,6 @@ void AShooterPlayerController::InputReleased(FGameplayTag InputTag)
 {
 	if(GetASC())
 	{
-		GetASC()->AbilityInputTagHeld(InputTag);
+		GetASC()->AbilityInputTagReleased(InputTag);
 	}
 }

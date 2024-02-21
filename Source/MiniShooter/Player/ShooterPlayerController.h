@@ -36,6 +36,8 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> MappingContext;
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UMiniShooterInputConfig> InputConfig;
 	
 	UPROPERTY(EditAnywhere, Category= "Input")
 	TObjectPtr<UInputAction> MoveAction;
@@ -45,8 +47,6 @@ private:
 	TObjectPtr<UInputAction> PauseMenuAction;
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> LookAction;
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UMiniShooterInputConfig> InputConfig;
 
 	UPROPERTY()
 	TObjectPtr<UMiniShooterAbilitySystemComponent> MiniShooterAbilitySystemComponent;

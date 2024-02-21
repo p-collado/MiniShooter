@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
+#include "MiniShooter/Interaction/CombatInterface.h"
 #include "CharacterBase.generated.h"
 
 class UGameplayAbility;
@@ -17,7 +18,7 @@ class UGameplayEffect;
 class USkeletalMeshComponent;
 
 UCLASS(Abstract)
-class MINISHOOTER_API ACharacterBase : public ACharacter, public IAbilitySystemInterface
+class MINISHOOTER_API ACharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
 {
 	GENERATED_BODY()
 

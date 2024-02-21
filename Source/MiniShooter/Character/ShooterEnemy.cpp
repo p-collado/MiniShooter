@@ -29,6 +29,16 @@ AShooterEnemy::AShooterEnemy(const FObjectInitializer& ObjectInitializer) : Supe
 	WidgetComponent->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 }
 
+FVector AShooterEnemy::GetSocketLocation_Implementation()
+{
+	return Weapon->GetSocketLocation(FName("Muzzle"));
+}
+
+FVector AShooterEnemy::GetForwardVector_Implementation()
+{
+	return Weapon->GetForwardVector();
+}
+
 void AShooterEnemy::OnHealthChanged(const FOnAttributeChangeData& OnAttributeChangeData)
 {
 	OnHealthChange.Broadcast(OnAttributeChangeData.NewValue);
@@ -81,13 +91,4 @@ void AShooterEnemy::PostInitializeComponents()
 {	
 	Super::PostInitializeComponents();
 	
-}
-
-// Called every frame
-void AShooterEnemy::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	CombatUtils.ShootDirection = GetActorForwardVector();
-	CombatUtils.ShootPosition = GetActorLocation() + FVector(0,0,35) + FVector(70,0,0);
 }

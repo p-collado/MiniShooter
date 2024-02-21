@@ -39,6 +39,12 @@ class MINISHOOTER_API APlayerCharacter : public ACharacterBase
 	UShooterHUD* HUDWidget;
 
 public:
+
+	//Begin Combat Interface
+	virtual FVector GetSocketLocation_Implementation() override;
+	virtual FVector GetForwardVector_Implementation() override;
+	//End Combat Interface
+	
 	// Sets default values for this character's properties
 	APlayerCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
@@ -62,8 +68,5 @@ protected:
 public:
 
 	virtual void PossessedBy(AController* NewController) override;
-
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 	
 };

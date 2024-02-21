@@ -29,6 +29,16 @@ void APlayerCharacter::SetupStimulusSource()
 	}
 }
 
+FVector APlayerCharacter::GetSocketLocation_Implementation()
+{
+	return FollowCamera->GetComponentLocation();
+}
+
+FVector APlayerCharacter::GetForwardVector_Implementation()
+{
+	return FollowCamera->GetForwardVector();
+}
+
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UShooterCharacterMovement>(ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -102,15 +112,6 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 
 	AddCharacterAbilities();
 }
-
-// Called every frame
-void APlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	CombatUtils.ShootDirection = FollowCamera->GetForwardVector();
-	CombatUtils.ShootPosition = FollowCamera->GetComponentLocation();
-}	
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
