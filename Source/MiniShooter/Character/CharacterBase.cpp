@@ -29,6 +29,11 @@ void ACharacterBase::BeginPlay()
 	
 }
 
+void ACharacterBase::InitializeInitAttributes()
+{
+	ApplyEffectToSelf(DefaultEffectAttributes, 1.f);
+}
+
 void ACharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffect, float Level) const
 {
 	check(IsValid(GetAbilitySystemComponent()))

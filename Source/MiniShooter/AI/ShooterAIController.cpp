@@ -3,10 +3,12 @@
 
 #include "ShooterAIController.h"
 
+#include "AbilitySystemComponent.h"
 #include "MiniShooter/Character/ShooterEnemy.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "MiniShooter/Character/CharacterBase.h"
+#include "Components/ShooterAIPerceptionComponent.h"
+#include "MiniShooter/Character/PlayerCharacter.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Hearing.h"
 #include "Perception/AISenseConfig_Sight.h"
@@ -18,15 +20,23 @@ AShooterAIController::AShooterAIController(FObjectInitializer const& ObjectIniti
 	PrimaryActorTick.bCanEverTick = true;
 
 	//AI percception
-	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComponent"));
+	AIPerceptionComponent = CreateDefaultSubobject<UShooterAIPerceptionComponent>(TEXT("PerceptionShooterComponent"));
 	
 	//Sight Sense
 	AIConfigSightSense = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightSenseComp"));
 
 	//Hear Sense
 	AIConfigHearingSense = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("HearingSenseComp"));
+
+	//TreeCmp
+	BehaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviourTreeCmp"));
 	
 	SetupPerceptionSystem();
+}
+
+void AShooterAIController::BroadCastAwareness(float CurrentAwareness)
+{
+	OnGettingSuspiciousSignature.Broadcast(CurrentAwareness);
 }
 
 // Called when the game starts or when spawned
@@ -34,6 +44,7 @@ void AShooterAIController::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Cast<UMiniShooterAttributeSet>(AttributeSet)->GetHealthAttribute()).AddUObject(this, &AShooterAIController::OnGetShot);
 }
 
 // Called every frame
@@ -46,6 +57,10 @@ void AShooterAIController::Shoot()
 {
 	AShooterEnemy* Enemy = Cast<AShooterEnemy>(GetPawn());
 	
+	if(Enemy)
+	{
+		Enemy->GetAbilitySystemComponent()->AbilityLocalInputPressed(26);
+	}
 }
 
 void AShooterAIController::OnPossess(APawn* InPawn)
@@ -56,8 +71,24 @@ void AShooterAIController::OnPossess(APawn* InPawn)
 	{
 		UseBlackboard(BehaviorTree->BlackboardAsset.Get(), BlackboardComponent);
 		RunBehaviorTree(BehaviorTree);
-		BlackboardComponent->SetValueAsEnum("CurrentEnemyState", EnemyState::Idle);
+		BlackboardComponent->SetValueAsEnum("CurrentEnemyState", EAwarenessState::Relaxed);
 	}
+
+	AShooterEnemy* OwnerPawn = Cast<AShooterEnemy>(InPawn);
+
+	if (OwnerPawn)
+	{
+		AbilitySystemComponent = OwnerPawn->GetAbilitySystemComponent();
+		AttributeSet = OwnerPawn->GetAttributeSet();
+	}
+}
+
+void AShooterAIController::OnGetShot() const
+{
+	BlackboardComponent->SetValueAsEnum("CurrentEnemyState", EAwarenessState::Detection);
+	BlackboardComponent->SetValueAsBool("Alert", true);
+	AIPerceptionComponent->SetCurrentAwareness(1.f);
+	OnGetShotSignature.Broadcast();
 }
 
 void AShooterAIController::SetupPerceptionSystem()
@@ -70,9 +101,9 @@ void AShooterAIController::SetupPerceptionSystem()
 		{
 			AIConfigSightSense->SightRadius = 500.f;
 			AIConfigSightSense->LoseSightRadius = AIConfigSightSense->SightRadius + 25.f;
-			AIConfigSightSense->PeripheralVisionAngleDegrees = 90.f;
-			AIConfigSightSense->SetMaxAge(5.f);
-			AIConfigSightSense->AutoSuccessRangeFromLastSeenLocation = 520.f;
+			AIConfigSightSense->PeripheralVisionAngleDegrees = 50.f;
+			AIConfigSightSense->SetMaxAge(2.f);
+			AIConfigSightSense->AutoSuccessRangeFromLastSeenLocation = 15.f;
 			AIConfigSightSense->DetectionByAffiliation.bDetectEnemies = true;
 			AIConfigSightSense->DetectionByAffiliation.bDetectFriendlies = true;
 			AIConfigSightSense->DetectionByAffiliation.bDetectNeutrals = true;
@@ -82,25 +113,54 @@ void AShooterAIController::SetupPerceptionSystem()
 			AIPerceptionComponent->ConfigureSense(*AIConfigSightSense);
 		}
 	}
+
+	BrainComponent = BehaviorTreeComponent;
 }
 
 void AShooterAIController::OnTargetDetected(AActor* Actor, FAIStimulus const Stimulus)
 {
-	ACharacterBase* const Char = Cast<ACharacterBase>(Actor);
+	APlayerCharacter* const Char = Cast<APlayerCharacter>(Actor);
 	
 	if (Char)
 	{
-		BlackboardComponent->SetValueAsBool("CanSeePlayer", Stimulus.WasSuccessfullySensed());
-		
+		// BlackboardComponent->SetValueAsBool("PlayerDetected", Stimulus.WasSuccessfullySensed());
+		//
+		// if (Stimulus.WasSuccessfullySensed())
+		// {
+		// 	BlackboardComponent->SetValueAsEnum("CurrentEnemyState", EEnemyState::Combat);
+		// 	BlackboardComponent->SetValueAsObject("TargetActor", Actor);
+		// 	BlackboardComponent->SetValueAsBool("Alert", true);
+		// }
+		// else
+		// {
+		// 	BlackboardComponent->SetValueAsEnum("CurrentEnemyState", EEnemyState::Alert);
+		// 	BlackboardComponent->SetValueAsObject("TargetActor", nullptr);
+		// 	BlackboardComponent->SetValueAsVector("TargetLocation", Actor->GetActorLocation());
+		// }
+
 		if (Stimulus.WasSuccessfullySensed())
 		{
-			BlackboardComponent->SetValueAsEnum("CurrentEnemyState", EnemyState::Combat);
-			BlackboardComponent->SetValueAsObject("TargetActor", Actor);
+			if (AIPerceptionComponent->GetCurrentAwarenessState() != Detection)
+			{
+				AIPerceptionComponent->SetCurrentTargetActor(Actor);
+				AIPerceptionComponent->IncreaseSuspicion();
+				AIPerceptionComponent->SetIsSuspecting(true);
+				AIPerceptionComponent->OnValueChange.ExecuteIfBound(*BehaviorTreeComponent, AIPerceptionComponent->GetIsSuspecting());
+			}
 		}
 		else
 		{
-			BlackboardComponent->SetValueAsEnum("CurrentEnemyState", EnemyState::Idle);
-			BlackboardComponent->SetValueAsObject("TargetActor", nullptr);
+			if (AIPerceptionComponent->GetCurrentAwarenessState() == Detection)
+			{
+				
+			}
+			else
+			{
+				AIPerceptionComponent->SetCurrentTargetActor(nullptr);
+				AIPerceptionComponent->DecreaseSuspicion();
+				AIPerceptionComponent->SetIsSuspecting(false);
+				AIPerceptionComponent->OnValueChange.ExecuteIfBound(*BehaviorTreeComponent, AIPerceptionComponent->GetIsSuspecting());
+			}
 		}
 	}
 }

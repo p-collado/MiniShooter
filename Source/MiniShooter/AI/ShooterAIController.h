@@ -6,21 +6,18 @@
 #include "Runtime/AIModule/Classes/AIController.h"
 #include "ShooterAIController.generated.h"
 
+class UBehaviorTreeComponent;
+class UAttributeSet;
+class UAbilitySystemComponent;
 struct FAIStimulus;
 class UAISenseConfig_Hearing;
 class UAISenseConfig_Sight;
-class UAIPerceptionComponent;
+class UShooterAIPerceptionComponent;
 class UBehaviorTree;
 class UBlackboardComponent;
 
-UENUM()
-enum EnemyState
-{
-	Invalid,
-	Idle,
-	Alert,
-	Combat
-};
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGetShotSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGettingSuspiciousSignature, float, AwarenessPercent);
 
 UCLASS()
 class MINISHOOTER_API AShooterAIController : public AAIController
@@ -36,11 +33,27 @@ public:
 	// Sets default values for this actor's properties
 	AShooterAIController(FObjectInitializer const& ObjectInitializer);
 
+	void OnGetShot() const;
+
+	UPROPERTY(BlueprintAssignable) //Delegate to notify enemy has been shot
+	FOnGetShotSignature OnGetShotSignature;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGettingSuspiciousSignature OnGettingSuspiciousSignature;
+
+	void BroadCastAwareness(float CurrentAwareness);
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
 	virtual void OnPossess(APawn* InPawn) override;
+	
+	UPROPERTY(VisibleAnywhere, Category= "GAS");
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY(VisibleAnywhere, Category= "GAS")
+	TObjectPtr<UAttributeSet> AttributeSet;
 
 public:
 	// Called every frame
@@ -50,16 +63,19 @@ public:
 	void Shoot();
 	
 	UPROPERTY(EditAnywhere, Category= "AIConfig")
-	UAIPerceptionComponent* AIPerceptionComponent;
+	TObjectPtr<UShooterAIPerceptionComponent> AIPerceptionComponent;
 
 	UPROPERTY(EditAnywhere, Category= "AIConfig")
-	UAISenseConfig_Sight* AIConfigSightSense;
+	TObjectPtr<UAISenseConfig_Sight> AIConfigSightSense;
 
 	UPROPERTY(EditAnywhere, Category= "AIConfig")
-	UAISenseConfig_Hearing* AIConfigHearingSense;
+	TObjectPtr<UAISenseConfig_Hearing> AIConfigHearingSense;
 	
 	UPROPERTY(EditAnywhere, Category= "AIConfig")
-	UBehaviorTree* BehaviorTree;
+	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+	UPROPERTY(EditAnywhere, Category= "AIConfig")
+	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
 
 	UPROPERTY(EditAnywhere, Category= "AIConfig")
 	UBlackboardComponent* BlackboardComponent;

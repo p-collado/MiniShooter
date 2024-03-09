@@ -10,7 +10,6 @@
 class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
-class UShooterHUD;
 class UAIPerceptionStimuliSourceComponent;
 class UInputMappingContext;
 struct FOnAttributeChangeData;
@@ -21,8 +20,6 @@ UCLASS()
 class MINISHOOTER_API APlayerCharacter : public ACharacterBase
 {
 	GENERATED_BODY()
-	
-	void InitializeInitAttributes();
 
 	//AI
 	void SetupStimulusSource();
@@ -35,9 +32,6 @@ class MINISHOOTER_API APlayerCharacter : public ACharacterBase
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
 
-	UPROPERTY(VisibleAnywhere, Category="HUD")
-	UShooterHUD* HUDWidget;
-
 public:
 
 	//Begin Combat Interface
@@ -48,11 +42,8 @@ public:
 	// Sets default values for this character's properties
 	APlayerCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	//AI Stimulus Source
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	UAIPerceptionStimuliSourceComponent* StimuliSource;
 
 	/** Returns CameraBoom subobject **/
@@ -60,12 +51,6 @@ public:
 
 	/** Returns TopDownCameraComponent subobject **/
 	FORCEINLINE UCameraComponent* GetCamera() const { return FollowCamera; }
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:
 
 	virtual void PossessedBy(AController* NewController) override;
 	

@@ -7,7 +7,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "MiniShooter/Character/Components/MiniShooterInputComponent.h"
 #include "MiniShooter/GAS/MiniShooterAbilitySystemComponent.h"
-#include "MiniShooter/HUD/MiniShooterHud.h"
+#include "MiniShooter/UI/HUD/MiniShooterHud.h"
 
 AShooterPlayerController::AShooterPlayerController()
 {

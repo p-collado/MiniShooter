@@ -9,16 +9,11 @@
 #include "Components/ShooterCharacterMovement.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "MiniShooter/HUD/MiniShooterHud.h"
 #include "MiniShooter/Player/MiniShooterPlayerState.h"
 #include "MiniShooter/Player/ShooterPlayerController.h"
+#include "MiniShooter/UI/HUD/MiniShooterHud.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
-
-void APlayerCharacter::InitializeInitAttributes()
-{
-	ApplyEffectToSelf(DefaultEffectAttributes, 1.f);
-}
 
 void APlayerCharacter::SetupStimulusSource()
 {
@@ -81,13 +76,6 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer) 
 	SetupStimulusSource();
 }
 
-// Called when the game starts or when spawned
-void APlayerCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
 void APlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -97,26 +85,15 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
 	AttributeSet = PS->GetAttributeSet();
-	InitializeInitAttributes();
 	
 	if (AShooterPlayerController* PC = Cast<AShooterPlayerController>(GetController()))
 	{
 		if(AMiniShooterHud* HUD = Cast<AMiniShooterHud>(PC->GetHUD()))
 		{
-			HUD->GetPlayerParams(PC,PS, AbilitySystemComponent, AttributeSet);
-			HUD->CreateMenus();
-			HUD->BindCallbackDependencies();
-			HUD->BroadCastInitialValues();
+			HUD->InitOverlay(PC, PS, AbilitySystemComponent, AttributeSet);
 		}
 	}
-
+	
+	InitializeInitAttributes();
 	AddCharacterAbilities();
 }
-
-// Called to bind functionality to input
-void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	
-}
-

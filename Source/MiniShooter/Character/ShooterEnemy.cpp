@@ -3,13 +3,13 @@
 
 #include "ShooterEnemy.h"
 
-#include "AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
+#include "MiniShooter/AI/ShooterAIController.h"
 #include "MiniShooter/Character/Components/ShooterCharacterMovement.h"
 #include "MiniShooter/GAS/MiniShooterAbilitySystemComponent.h"
 #include "MiniShooter/GAS/MiniShooterAttributeSet.h"
-#include "MiniShooter/HUD/EnemyHUD.h"
+#include "MiniShooter/UI/Widgets/ShooterUserWidget.h"
 
 // Sets default values
 AShooterEnemy::AShooterEnemy(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UShooterCharacterMovement>(ACharacter::CharacterMovementComponentName))
@@ -17,16 +17,20 @@ AShooterEnemy::AShooterEnemy(const FObjectInitializer& ObjectInitializer) : Supe
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//GAS setup
+	//GAS set up
 	AbilitySystemComponent = CreateDefaultSubobject<UMiniShooterAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
+	//AttributeSet set up
 	AttributeSet = CreateDefaultSubobject<UMiniShooterAttributeSet>(TEXT("AttributeEnemyList"));
 
 	//Widget Component
-	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("LifeWidget"));
-	WidgetComponent->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("LifeWidget"));
+	HealthBarWidgetComponent->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	
+	SuspiciousBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("SuspiciousWidget"));
+	SuspiciousBarWidgetComponent->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 FVector AShooterEnemy::GetSocketLocation_Implementation()
@@ -39,43 +43,49 @@ FVector AShooterEnemy::GetForwardVector_Implementation()
 	return Weapon->GetForwardVector();
 }
 
-void AShooterEnemy::OnHealthChanged(const FOnAttributeChangeData& OnAttributeChangeData)
-{
-	OnHealthChange.Broadcast(OnAttributeChangeData.NewValue);
-
-	if (OnAttributeChangeData.NewValue <= 0)
-	{
-		Destroy();
-	}
-}
-
-void AShooterEnemy::BeginDestroy()
-{
-	Super::BeginDestroy();
-	OnHealthChange.Clear();
-}
-
 // Called when the game starts or when spawned
 void AShooterEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	UMiniShooterAttributeSet* ATS = Cast<UMiniShooterAttributeSet>(AttributeSet);
-	
-	FOnGameplayAttributeValueChange& Delegate = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UMiniShooterAttributeSet::GetHealthAttribute());
-	Delegate.AddUObject(this, &AShooterEnemy::OnHealthChanged);
 
-	ApplyEffectToSelf(DefaultEffectAttributes, 1.f);
+	InitializeInitAttributes();
 	
-	UEnemyHUD* EnemyHUD = Cast<UEnemyHUD>(WidgetComponent->GetUserWidgetObject());
+	UShooterUserWidget* EnemyLifeBar = Cast<UShooterUserWidget>(HealthBarWidgetComponent->GetUserWidgetObject());
+	UShooterUserWidget* EnemySuspiciousBar = Cast<UShooterUserWidget>(SuspiciousBarWidgetComponent->GetUserWidgetObject());
 
-	if (EnemyHUD)
+	if (EnemyLifeBar)
 	{
-		EnemyHUD->SetCharacterOwner(this);
-		EnemyHUD->BindDelegates();
-		EnemyHUD->SetCurrentMaxLife(ATS->GetMaxHealth());
-		OnHealthChange.Broadcast(ATS->GetHealth());
+		EnemyLifeBar->SetWidgetController(this);
+	}
+
+	if(EnemySuspiciousBar)
+	{
+		EnemySuspiciousBar->SetWidgetController(this);
+	}
+
+	UMiniShooterAttributeSet* ATS = Cast<UMiniShooterAttributeSet>(AttributeSet);
+	if (ATS)
+	{
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ATS->GetHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnHealthChanged.Broadcast(Data.NewValue);
+				if (Data.OldValue > Data.NewValue)
+				{
+					Cast<AShooterAIController>(Controller)->OnGetShot();
+				}
+			});
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(ATS->GetMaxHealthAttribute()).AddLambda(
+		[this](const FOnAttributeChangeData& Data)
+			{
+				OnMaxHealthChanged.Broadcast(Data.NewValue);
+			});
+		
+			OnHealthChanged.Broadcast(ATS->GetHealth());
+			OnMaxHealthChanged.Broadcast(ATS->GetMaxHealth());
 	}
 	
 	for (TSubclassOf<UGameplayAbility>& Element : Abilities)
@@ -85,10 +95,4 @@ void AShooterEnemy::BeginPlay()
 			AbilitySystemComponent->GiveAbility(Element);
 		}
 	}
-}
-
-void AShooterEnemy::PostInitializeComponents()
-{	
-	Super::PostInitializeComponents();
-	
 }

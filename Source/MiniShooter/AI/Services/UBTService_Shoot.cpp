@@ -3,9 +3,8 @@
 
 #include "UBTService_Shoot.h"
 
-#include "AbilitySystemComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "MiniShooter/AI/ShooterAIController.h"
-#include "MiniShooter/Character/ShooterEnemy.h"
 
 UUBTService_Shoot::UUBTService_Shoot(FObjectInitializer const& ObjectInitializer) : UBTService_BlackboardBase{ObjectInitializer}
 {
@@ -15,17 +14,12 @@ UUBTService_Shoot::UUBTService_Shoot(FObjectInitializer const& ObjectInitializer
 
 void UUBTService_Shoot::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 	
 	AShooterAIController* const AIController = Cast<AShooterAIController>(OwnerComp.GetAIOwner());
 
 	if (AIController)
 	{
-		AShooterEnemy* const Char = Cast<AShooterEnemy>(AIController->GetPawn());
-
-		if (Char)
-		{
-			Char->GetAbilitySystemComponent()->AbilityLocalInputPressed(26);
-		}
+		AIController->SetFocus(Cast<AActor>(AIController->GetBlackboardComponent()->GetValueAsObject("TargetActor")), EAIFocusPriority::Default);
+		AIController->Shoot();
 	}
 }

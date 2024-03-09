@@ -15,7 +15,6 @@ UBTService_ChangeSpeed::UBTService_ChangeSpeed(FObjectInitializer const& ObjectI
 
 void UBTService_ChangeSpeed::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 
 	AShooterAIController* const AIController = Cast<AShooterAIController>(OwnerComp.GetAIOwner());
 	
