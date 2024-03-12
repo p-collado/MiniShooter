@@ -32,7 +32,7 @@ public:
 
 	//Begin Combat Interface
 	virtual FVector GetSocketLocation_Implementation() override;
-	virtual FVector GetForwardVector_Implementation() override;
+	virtual FVector GetTargetDirection_Implementation() override;
 	//End Combat Interface
 
 protected:

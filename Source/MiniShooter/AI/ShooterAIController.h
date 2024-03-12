@@ -62,19 +62,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Shoot();
 	
-	UPROPERTY(EditAnywhere, Category= "AIConfig")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category= "AIConfig")
 	TObjectPtr<UShooterAIPerceptionComponent> AIPerceptionComponent;
 
-	UPROPERTY(EditAnywhere, Category= "AIConfig")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "AIConfig")
 	TObjectPtr<UAISenseConfig_Sight> AIConfigSightSense;
 
-	UPROPERTY(EditAnywhere, Category= "AIConfig")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "AIConfig")
 	TObjectPtr<UAISenseConfig_Hearing> AIConfigHearingSense;
 	
-	UPROPERTY(EditAnywhere, Category= "AIConfig")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "AIConfig")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
 
-	UPROPERTY(EditAnywhere, Category= "AIConfig")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "AIConfig")
 	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
 
 	UPROPERTY(EditAnywhere, Category= "AIConfig")

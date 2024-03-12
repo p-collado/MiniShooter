@@ -16,7 +16,8 @@ enum EAwarenessState
 	Detection
 };
 
-DECLARE_DELEGATE_TwoParams(FOnValueChange, UBehaviorTreeComponent&, bool);
+DECLARE_DELEGATE_TwoParams(FOnIsSuspicionValueChange, UBehaviorTreeComponent&, bool);
+DECLARE_DELEGATE_TwoParams(FOnEnemyStateValueChange, UBehaviorTreeComponent&, EAwarenessState);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class MINISHOOTER_API UShooterAIPerceptionComponent : public UAIPerceptionComponent
@@ -28,9 +29,12 @@ public:
 	UShooterAIPerceptionComponent(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintCallable)
-	EAwarenessState GetCurrentAwarenessState() const;
+	EAwarenessState GetCurrentAwarenessState();
+
+	bool StateHasChange(EAwarenessState NewState) const;
 	
-	FOnValueChange OnValueChange;
+	FOnIsSuspicionValueChange OnValueChange;
+	FOnEnemyStateValueChange OnStateChange;
 
 	float GetCurrentAwareness() const { return CurrentAwareness; }
 	bool GetIsSuspecting() const { return bBeSuspecting; }
@@ -46,22 +50,22 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere, Category= "Perception")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Perception")
 	bool bBeSuspecting;
 
-	UPROPERTY(VisibleAnywhere, Category= "Perception")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Perception")
 	AActor* CurrentTargetActor = nullptr;
 	
-	UPROPERTY(VisibleAnywhere, Category= "Perception")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Perception")
 	float CurrentAwareness = 0.f;
 
-	UPROPERTY(EditAnywhere, Category= "Perception")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Perception")
 	float AwarenessRatio = 0.025f;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	FTimerHandle SuspiciousTimer;
 	
-	UPROPERTY(VisibleAnywhere, Category= "Perception")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Perception")
 	TEnumAsByte<EAwarenessState> AwarenessState = Relaxed;
 
 private:

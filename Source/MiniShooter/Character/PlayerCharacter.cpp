@@ -29,7 +29,7 @@ FVector APlayerCharacter::GetSocketLocation_Implementation()
 	return FollowCamera->GetComponentLocation();
 }
 
-FVector APlayerCharacter::GetForwardVector_Implementation()
+FVector APlayerCharacter::GetTargetDirection_Implementation()
 {
 	return FollowCamera->GetForwardVector();
 }

@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "MiniShooter/AI/ShooterAIController.h"
+#include "MiniShooter/AI/Components/ShooterAIPerceptionComponent.h"
 #include "MiniShooter/Character/Components/ShooterCharacterMovement.h"
 #include "MiniShooter/GAS/MiniShooterAbilitySystemComponent.h"
 #include "MiniShooter/GAS/MiniShooterAttributeSet.h"
@@ -38,9 +39,9 @@ FVector AShooterEnemy::GetSocketLocation_Implementation()
 	return Weapon->GetSocketLocation(FName("Muzzle"));
 }
 
-FVector AShooterEnemy::GetForwardVector_Implementation()
+FVector AShooterEnemy::GetTargetDirection_Implementation()
 {
-	return Weapon->GetForwardVector();
+	return (Cast<AShooterAIController>(Controller)->AIPerceptionComponent->GetActorTarget()->GetActorLocation() - Weapon->GetComponentLocation()).GetSafeNormal();
 }
 
 // Called when the game starts or when spawned

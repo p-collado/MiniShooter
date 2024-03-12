@@ -16,7 +16,11 @@ class MINISHOOTER_API UBTDecorator_AwarenessStateCheck : public UBTDecorator
 	GENERATED_BODY()
 
 public:
+	UBTDecorator_AwarenessStateCheck();
 
+	void OnValueChange(UBehaviorTreeComponent& BehaviorTreeComponent, EAwarenessState);
+	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	virtual void OnCeaseRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
 	
 	UPROPERTY(EditAnywhere)

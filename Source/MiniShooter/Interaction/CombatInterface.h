@@ -24,5 +24,5 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FVector GetSocketLocation();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	FVector GetForwardVector();
+	FVector GetTargetDirection();
 };

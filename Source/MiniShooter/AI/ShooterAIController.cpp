@@ -71,7 +71,6 @@ void AShooterAIController::OnPossess(APawn* InPawn)
 	{
 		UseBlackboard(BehaviorTree->BlackboardAsset.Get(), BlackboardComponent);
 		RunBehaviorTree(BehaviorTree);
-		BlackboardComponent->SetValueAsEnum("CurrentEnemyState", EAwarenessState::Relaxed);
 	}
 
 	AShooterEnemy* OwnerPawn = Cast<AShooterEnemy>(InPawn);
@@ -85,8 +84,6 @@ void AShooterAIController::OnPossess(APawn* InPawn)
 
 void AShooterAIController::OnGetShot() const
 {
-	BlackboardComponent->SetValueAsEnum("CurrentEnemyState", EAwarenessState::Detection);
-	BlackboardComponent->SetValueAsBool("Alert", true);
 	AIPerceptionComponent->SetCurrentAwareness(1.f);
 	OnGetShotSignature.Broadcast();
 }
@@ -123,21 +120,6 @@ void AShooterAIController::OnTargetDetected(AActor* Actor, FAIStimulus const Sti
 	
 	if (Char)
 	{
-		// BlackboardComponent->SetValueAsBool("PlayerDetected", Stimulus.WasSuccessfullySensed());
-		//
-		// if (Stimulus.WasSuccessfullySensed())
-		// {
-		// 	BlackboardComponent->SetValueAsEnum("CurrentEnemyState", EEnemyState::Combat);
-		// 	BlackboardComponent->SetValueAsObject("TargetActor", Actor);
-		// 	BlackboardComponent->SetValueAsBool("Alert", true);
-		// }
-		// else
-		// {
-		// 	BlackboardComponent->SetValueAsEnum("CurrentEnemyState", EEnemyState::Alert);
-		// 	BlackboardComponent->SetValueAsObject("TargetActor", nullptr);
-		// 	BlackboardComponent->SetValueAsVector("TargetLocation", Actor->GetActorLocation());
-		// }
-
 		if (Stimulus.WasSuccessfullySensed())
 		{
 			if (AIPerceptionComponent->GetCurrentAwarenessState() != Detection)
@@ -156,6 +138,7 @@ void AShooterAIController::OnTargetDetected(AActor* Actor, FAIStimulus const Sti
 			}
 			else
 			{
+				ClearFocus(EAIFocusPriority::Default);
 				AIPerceptionComponent->SetCurrentTargetActor(nullptr);
 				AIPerceptionComponent->DecreaseSuspicion();
 				AIPerceptionComponent->SetIsSuspecting(false);

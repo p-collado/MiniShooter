@@ -5,6 +5,7 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "MiniShooter/AI/ShooterAIController.h"
+#include "MiniShooter/AI/Components/ShooterAIPerceptionComponent.h"
 
 UUBTService_Shoot::UUBTService_Shoot(FObjectInitializer const& ObjectInitializer) : UBTService_BlackboardBase{ObjectInitializer}
 {
@@ -19,7 +20,7 @@ void UUBTService_Shoot::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint
 
 	if (AIController)
 	{
-		AIController->SetFocus(Cast<AActor>(AIController->GetBlackboardComponent()->GetValueAsObject("TargetActor")), EAIFocusPriority::Default);
+		AIController->SetFocus(AIController->AIPerceptionComponent->GetActorTarget(), EAIFocusPriority::Default);
 		AIController->Shoot();
 	}
 }
