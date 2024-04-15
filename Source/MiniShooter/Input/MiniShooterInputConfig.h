@@ -15,10 +15,10 @@ USTRUCT(BlueprintType)
 struct FMiniShooterInputAction
 {
 	GENERATED_BODY()
-
+	//Input
 	UPROPERTY(EditDefaultsOnly)
 	const class UInputAction* InputAction = nullptr;
-
+	//Tag to associate to input
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag InputTag;
 	
