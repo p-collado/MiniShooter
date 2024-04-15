@@ -6,6 +6,7 @@
 #include "Runtime/AIModule/Classes/AIController.h"
 #include "ShooterAIController.generated.h"
 
+class UPostingComponent;
 class UBehaviorTreeComponent;
 class UAttributeSet;
 class UAbilitySystemComponent;
@@ -76,6 +77,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "AIConfig")
 	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Posting and Patrol Config")
+	TObjectPtr<UPostingComponent> PostingComponent;
+
 
 	UPROPERTY(EditAnywhere, Category= "AIConfig")
 	UBlackboardComponent* BlackboardComponent;

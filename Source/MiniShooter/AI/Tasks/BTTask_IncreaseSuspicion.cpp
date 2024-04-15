@@ -17,7 +17,7 @@ EBTNodeResult::Type UBTTask_IncreaseSuspicion::ExecuteTask(UBehaviorTreeComponen
 		if(PerceptionComponent)
 		{
 			PerceptionComponent->IncreaseSuspicion();
-			return EBTNodeResult::Succeeded;
+			return EBTNodeResult::InProgress;
 		}
 	}
 	

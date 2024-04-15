@@ -85,6 +85,7 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
 	AttributeSet = PS->GetAttributeSet();
+
 	
 	if (AShooterPlayerController* PC = Cast<AShooterPlayerController>(GetController()))
 	{

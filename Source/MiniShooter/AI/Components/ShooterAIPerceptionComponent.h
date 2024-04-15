@@ -31,22 +31,27 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EAwarenessState GetCurrentAwarenessState();
 
-	bool StateHasChange(EAwarenessState NewState) const;
+	bool StateHasChanged(EAwarenessState NewState) const;
 	
 	FOnIsSuspicionValueChange OnValueChange;
 	FOnEnemyStateValueChange OnStateChange;
 
-	float GetCurrentAwareness() const { return CurrentAwareness; }
+	float GetCurrentAwarenessStateFromAwarenessLevel() const { return CurrentAwareness; }
 	bool GetIsSuspecting() const { return bBeSuspecting; }
 	AActor* GetActorTarget() const { return CurrentTargetActor; }
+	FVector GetLastPlayerPosition() const { return LastPlayerPosition; }
+	EAwarenessState GetCurrentAwarenessState() const { return AwarenessState; }
 
 	void SetCurrentTargetActor(AActor* TargetActor) { CurrentTargetActor = TargetActor;	}
 	void SetCurrentAwareness(float NewAwareness) { CurrentAwareness = NewAwareness; }
 	void SetIsSuspecting(bool NewBool) { bBeSuspecting = NewBool; }
+	void SetLastPlayerPosition(const FVector& LastPosition);
 
 	void IncreaseSuspicion();
 	void DecreaseSuspicion();
 	void ClearSuspiciousTimer();
+	void PauseSuspiciousTimer();
+	void ResumeSuspiciousTimer();
 
 protected:
 
@@ -67,6 +72,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Perception")
 	TEnumAsByte<EAwarenessState> AwarenessState = Relaxed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Perception")
+	FVector LastPlayerPosition;
 
 private:
 	

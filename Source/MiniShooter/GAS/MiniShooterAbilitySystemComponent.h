@@ -7,6 +7,9 @@
 #include "MiniShooterAbilitySystemComponent.generated.h"
 
 
+class UShooterGameplayAbilityBase;
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAbilityGunModeChangedSignature, const FString&);
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class MINISHOOTER_API UMiniShooterAbilitySystemComponent : public UAbilitySystemComponent
 {
@@ -20,8 +23,18 @@ public:
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);
 
+	UFUNCTION(BlueprintCallable)
+	void ChangePistolGunMode();
+
 	static FGameplayTag GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 
+	FOnAbilityGunModeChangedSignature OnAbilityGunModeChangedSignature;
+
+	UPROPERTY(EditDefaultsOnly, Category="GAS|AbilityPistolConfig")
+	TSubclassOf<UShooterGameplayAbilityBase> ModeAuto;
+
+	UPROPERTY(EditDefaultsOnly, Category="GAS|AbilityPistolConfig")
+	TSubclassOf<UShooterGameplayAbilityBase> ModeSingle;
 	
 	bool bStartupAbilitiesGiven = false;
 };

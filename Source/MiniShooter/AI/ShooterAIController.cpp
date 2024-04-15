@@ -6,7 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "MiniShooter/Character/ShooterEnemy.h"
 #include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BlackboardComponent.h"
+#include "Components/PostingComponent.h"
 #include "Components/ShooterAIPerceptionComponent.h"
 #include "MiniShooter/Character/PlayerCharacter.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -30,6 +30,9 @@ AShooterAIController::AShooterAIController(FObjectInitializer const& ObjectIniti
 
 	//TreeCmp
 	BehaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviourTreeCmp"));
+
+	//PostingCmp
+	PostingComponent = CreateDefaultSubobject<UPostingComponent>(TEXT("PostingCmp"));
 	
 	SetupPerceptionSystem();
 }
@@ -122,21 +125,35 @@ void AShooterAIController::OnTargetDetected(AActor* Actor, FAIStimulus const Sti
 	{
 		if (Stimulus.WasSuccessfullySensed())
 		{
-			if (AIPerceptionComponent->GetCurrentAwarenessState() != Detection)
+			if (AIPerceptionComponent->GetCurrentAwarenessState() == Relaxed)
 			{
 				AIPerceptionComponent->SetCurrentTargetActor(Actor);
 				AIPerceptionComponent->IncreaseSuspicion();
 				AIPerceptionComponent->SetIsSuspecting(true);
 				AIPerceptionComponent->OnValueChange.ExecuteIfBound(*BehaviorTreeComponent, AIPerceptionComponent->GetIsSuspecting());
 			}
+			else if(AIPerceptionComponent->GetCurrentAwarenessState() == Suspicious)
+			{
+				AIPerceptionComponent->SetCurrentTargetActor(Actor);
+				AIPerceptionComponent->ResumeSuspiciousTimer();
+				AIPerceptionComponent->SetIsSuspecting(true);
+				AIPerceptionComponent->OnValueChange.ExecuteIfBound(*BehaviorTreeComponent, AIPerceptionComponent->GetIsSuspecting());
+			}
 		}
-		else
+		else //Not successfully sensed
 		{
 			if (AIPerceptionComponent->GetCurrentAwarenessState() == Detection)
 			{
 				
 			}
-			else
+			else if (AIPerceptionComponent->GetCurrentAwarenessState() == Suspicious)
+			{
+				ClearFocus(EAIFocusPriority::Default);
+				AIPerceptionComponent->PauseSuspiciousTimer();
+				AIPerceptionComponent->SetIsSuspecting(false);
+				AIPerceptionComponent->OnValueChange.ExecuteIfBound(*BehaviorTreeComponent, AIPerceptionComponent->GetIsSuspecting());
+			}
+			else //Relaxed
 			{
 				ClearFocus(EAIFocusPriority::Default);
 				AIPerceptionComponent->SetCurrentTargetActor(nullptr);
@@ -144,6 +161,8 @@ void AShooterAIController::OnTargetDetected(AActor* Actor, FAIStimulus const Sti
 				AIPerceptionComponent->SetIsSuspecting(false);
 				AIPerceptionComponent->OnValueChange.ExecuteIfBound(*BehaviorTreeComponent, AIPerceptionComponent->GetIsSuspecting());
 			}
+
+			AIPerceptionComponent->SetLastPlayerPosition(Actor->GetActorLocation());
 		}
 	}
 }

@@ -1,49 +1,49 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BTTask_FindPlayerLocation.h"
+#include "BTTask_ReturnToWatchPoint.h"
 
-#include "NavigationSystem.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
 #include "MiniShooter/AI/ShooterAIController.h"
-#include "MiniShooter/AI/Components/ShooterAIPerceptionComponent.h"
+#include "MiniShooter/AI/Components/PostingComponent.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "Tasks/AITask_MoveTo.h"
 
-UBTTask_FindPlayerLocation::UBTTask_FindPlayerLocation(FObjectInitializer const& ObjectInitializer) : UBTTask_BlackboardBase{ObjectInitializer}
+UBTTask_ReturnToWatchPoint::UBTTask_ReturnToWatchPoint()
 {
-	NodeName = TEXT("Find Player Location");
+	NodeName = "Return to Watch Point";
 }
 
-uint16 UBTTask_FindPlayerLocation::GetInstanceMemorySize() const
-{
-	return sizeof(FMoveToTaskMemory);
-}
-
-EBTNodeResult::Type UBTTask_FindPlayerLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBTTask_ReturnToWatchPoint::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	AShooterAIController* AIController = Cast<AShooterAIController>(OwnerComp.GetAIOwner());
 	EBTNodeResult::Type NodeResult = EBTNodeResult::InProgress;
-	FMoveToTaskMemory* MyMemory = CastInstanceNodeMemory<FMoveToTaskMemory>(NodeMemory);
+	FReturnToWatchPointTaskMemory* MyMemory = CastInstanceNodeMemory<FReturnToWatchPointTaskMemory>(NodeMemory);
 	MyMemory->MoveRequestID = FAIRequestID::InvalidRequest;
-	
-	if (SearchRandom)
+	const UPostingComponent* PostingComponent = AIController->PostingComponent;
+
+	if (AIController && PostingComponent)
 	{
-		NodeResult = PerformMoveTask(OwnerComp, NodeMemory, SearchRandom);
+		NodeResult = PerformMoveTask(OwnerComp, NodeMemory);
+
+		return NodeResult;
 	}
 
+	NodeResult = EBTNodeResult::Failed;
 	return NodeResult;
 }
 
-EBTNodeResult::Type UBTTask_FindPlayerLocation::PerformMoveTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, bool RandomSearch)
+uint16 UBTTask_ReturnToWatchPoint::GetInstanceMemorySize() const
 {
-	FMoveToTaskMemory* MyMemory = CastInstanceNodeMemory<FMoveToTaskMemory>(NodeMemory);
-	const AShooterAIController* MyController = CastChecked<AShooterAIController>(OwnerComp.GetAIOwner());
+	return sizeof(FReturnToWatchPointTaskMemory);
+}
+
+EBTNodeResult::Type UBTTask_ReturnToWatchPoint::PerformMoveTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	FReturnToWatchPointTaskMemory* MyMemory = CastInstanceNodeMemory<FReturnToWatchPointTaskMemory>(NodeMemory);
+	AAIController* MyController = OwnerComp.GetAIOwner();
+
 	EBTNodeResult::Type NodeResult = EBTNodeResult::Failed;
-	const ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	const UShooterAIPerceptionComponent* PerceptionComponent = MyController->AIPerceptionComponent;
-	
+
 	if (MyController)
 	{
 		FAIMoveRequest MoveReq;
@@ -56,21 +56,11 @@ EBTNodeResult::Type UBTTask_FindPlayerLocation::PerformMoveTask(UBehaviorTreeCom
 		MoveReq.SetRequireNavigableEndLocation(true);
 		MoveReq.SetProjectGoalLocation(true);
 		MoveReq.SetUsePathfinding(true);
-		
-		const UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
-		
-		if (Player)
+
+		UPostingComponent* PostingComponent = MyController->FindComponentByClass<UPostingComponent>();
+		if (PostingComponent)
 		{
-			if (RandomSearch && PerceptionComponent)
-			{
-				FNavLocation Location;
-				NavSystem->GetRandomPointInNavigableRadius(PerceptionComponent->GetLastPlayerPosition(), Radius, Location);
-				MoveReq.SetGoalLocation(Location);
-			}
-			else
-			{
-				MoveReq.SetGoalLocation(PerceptionComponent->GetLastPlayerPosition());
-			}
+			MoveReq.SetGoalLocation(PostingComponent->GetPostingPoint());
 		}
 
 		if (MoveReq.IsValid())
@@ -111,7 +101,7 @@ EBTNodeResult::Type UBTTask_FindPlayerLocation::PerformMoveTask(UBehaviorTreeCom
 	return NodeResult;
 }
 
-UAITask_MoveTo* UBTTask_FindPlayerLocation::PrepareMoveTask(UBehaviorTreeComponent& OwnerComp,
+UAITask_MoveTo* UBTTask_ReturnToWatchPoint::PrepareMoveTask(UBehaviorTreeComponent& OwnerComp,
 	UAITask_MoveTo* ExistingTask, FAIMoveRequest& MoveRequest)
 {
 	UAITask_MoveTo* MoveTask = ExistingTask ? ExistingTask : NewBTAITask<UAITask_MoveTo>(OwnerComp);

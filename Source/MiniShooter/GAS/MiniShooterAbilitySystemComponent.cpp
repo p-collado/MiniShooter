@@ -4,6 +4,7 @@
 #include "MiniShooterAbilitySystemComponent.h"
 
 #include "Abilities/ShooterGameplayAbilityBase.h"
+#include "MiniShooter/FShooterGameplayTags.h"
 
 
 // Sets default values for this component's properties
@@ -65,6 +66,47 @@ void UMiniShooterAbilitySystemComponent::AbilityInputTagHeld(FGameplayTag InputT
 			}
 		}
 	}
+}
+
+void UMiniShooterAbilitySystemComponent::ChangePistolGunMode()
+{
+	FScopedAbilityListLock ActiveScopeList(*this);
+	const FGameplayTag InputTag = FShooterGameplayTags::Get().Input_LMB;
+	FGameplayAbilitySpec FoundAbility;
+
+	for (FGameplayAbilitySpec& AbilitySpecInASC : GetActivatableAbilities())
+	{
+		if(Cast<UShooterGameplayAbilityBase>(AbilitySpecInASC.Ability)->StartupInputTag.MatchesTagExact(InputTag))
+		{
+			FoundAbility = AbilitySpecInASC;
+			break;
+		}
+	}
+
+	FGameplayAbilitySpec AbilitySpec;
+	const UShooterGameplayAbilityBase* Ability = nullptr;
+
+	if (Cast<UShooterGameplayAbilityBase>(FoundAbility.Ability)->GunMode == "Single")
+	{
+		AbilitySpec = FGameplayAbilitySpec(ModeAuto, 1);
+		AbilitySpec.DynamicAbilityTags.AddTag(InputTag);
+		Ability = Cast<UShooterGameplayAbilityBase>(AbilitySpec.Ability);
+		GiveAbility(AbilitySpec);
+	}
+	else if (Cast<UShooterGameplayAbilityBase>(FoundAbility.Ability)->GunMode == "Auto")
+	{
+		AbilitySpec = FGameplayAbilitySpec(ModeSingle, 1);
+		AbilitySpec.DynamicAbilityTags.AddTag(InputTag);
+		Ability = Cast<UShooterGameplayAbilityBase>(AbilitySpec.Ability);
+		GiveAbility(AbilitySpec);
+	}
+	
+	if(FoundAbility.Handle.IsValid())
+	{
+		ClearAbility(FoundAbility.Handle);
+	}
+
+	OnAbilityGunModeChangedSignature.Broadcast(Ability->GunMode);
 }
 
 FGameplayTag UMiniShooterAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)

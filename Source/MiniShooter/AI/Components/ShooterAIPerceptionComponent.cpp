@@ -20,7 +20,7 @@ EAwarenessState UShooterAIPerceptionComponent::GetCurrentAwarenessState()
 {
 	if (CurrentAwareness >= 0.f && CurrentAwareness <= 0.5f)
 	{
-		if (StateHasChange(Relaxed))
+		if (StateHasChanged(Relaxed))
 		{
 			OnStateChange.ExecuteIfBound(*Cast<AShooterAIController>(GetOwner())->BehaviorTreeComponent,Relaxed);
 		}
@@ -30,7 +30,7 @@ EAwarenessState UShooterAIPerceptionComponent::GetCurrentAwarenessState()
 
 	if (CurrentAwareness > 0.5f && CurrentAwareness <= 0.99f)
 	{
-		if (StateHasChange(Suspicious))
+		if (StateHasChanged(Suspicious))
 		{
 			OnStateChange.ExecuteIfBound(*Cast<AShooterAIController>(GetOwner())->BehaviorTreeComponent,Suspicious);
 		}
@@ -40,7 +40,7 @@ EAwarenessState UShooterAIPerceptionComponent::GetCurrentAwarenessState()
 
 	if (CurrentAwareness > 0.99f)
 	{
-		if (StateHasChange(Detection))
+		if (StateHasChanged(Detection))
 		{
 			OnStateChange.ExecuteIfBound(*Cast<AShooterAIController>(GetOwner())->BehaviorTreeComponent,Detection);
 		}
@@ -51,7 +51,7 @@ EAwarenessState UShooterAIPerceptionComponent::GetCurrentAwarenessState()
 	return InvalidState;
 }
 
-bool UShooterAIPerceptionComponent::StateHasChange(EAwarenessState NewState) const
+bool UShooterAIPerceptionComponent::StateHasChanged(EAwarenessState NewState) const
 {
 	if (AwarenessState != NewState)
 	{
@@ -61,6 +61,11 @@ bool UShooterAIPerceptionComponent::StateHasChange(EAwarenessState NewState) con
 	return false;
 }
 
+
+void UShooterAIPerceptionComponent::SetLastPlayerPosition(const FVector& LastPosition)
+{
+	LastPlayerPosition = LastPosition;
+}
 
 void UShooterAIPerceptionComponent::IncreaseSuspicion()
 {
@@ -84,6 +89,22 @@ void UShooterAIPerceptionComponent::DecreaseSuspicion()
 void UShooterAIPerceptionComponent::ClearSuspiciousTimer()
 {
 	GetWorld()->GetTimerManager().ClearTimer(SuspiciousTimer);
+}
+
+void UShooterAIPerceptionComponent::PauseSuspiciousTimer()
+{
+	if(!GetWorld()->GetTimerManager().IsTimerPaused(SuspiciousTimer))
+	{
+		GetWorld()->GetTimerManager().PauseTimer(SuspiciousTimer);
+	}
+}
+
+void UShooterAIPerceptionComponent::ResumeSuspiciousTimer()
+{
+	if(GetWorld()->GetTimerManager().IsTimerPaused(SuspiciousTimer))
+	{
+		GetWorld()->GetTimerManager().UnPauseTimer(SuspiciousTimer);
+	}
 }
 
 void UShooterAIPerceptionComponent::IncreaseAwareness()

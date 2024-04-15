@@ -3,20 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
-#include "BTTAsk_ChasePlayer.generated.h"
+#include "BehaviorTree/BTTaskNode.h"
+#include "BTTask_RotateToWatchDirection.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MINISHOOTER_API UBTTAsk_ChasePlayer : public UBTTask_BlackboardBase
+class MINISHOOTER_API UBTTask_RotateToWatchDirection : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 public:
 
-	UBTTAsk_ChasePlayer(FObjectInitializer const& ObjectInitializer);
+	UBTTask_RotateToWatchDirection();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };
