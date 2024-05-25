@@ -17,8 +17,7 @@ UMiniShooterAbilitySystemComponent::UMiniShooterAbilitySystemComponent()
 	// ...
 }
 
-void UMiniShooterAbilitySystemComponent::AddCharacterAbilities(
-	const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities)
+void UMiniShooterAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities)
 {
 	for (const TSubclassOf<UGameplayAbility> AbilityClass : StartupAbilities)
 	{

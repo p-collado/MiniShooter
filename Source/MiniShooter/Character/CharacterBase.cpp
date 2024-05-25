@@ -17,6 +17,11 @@ ACharacterBase::ACharacterBase(const FObjectInitializer& ObjectInitializer)
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+void ACharacterBase::Die()
+{
+	Destroy();
+}
+
 float ACharacterBase::GetSpeed()
 {
 	return Cast<UMiniShooterAttributeSet>(AttributeSet)->GetMovSpeed();

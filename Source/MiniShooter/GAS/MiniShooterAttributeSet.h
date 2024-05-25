@@ -13,6 +13,33 @@
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
+USTRUCT(BlueprintType, Blueprintable)
+struct FEffectProperties
+{
+	GENERATED_BODY()
+
+	FEffectProperties() {}
+
+	UPROPERTY()
+	UAbilitySystemComponent* TargetASC = nullptr;
+	UPROPERTY()
+	UAbilitySystemComponent* SourceASC = nullptr;
+	UPROPERTY()
+	AActor* AvatarTarget = nullptr;
+	UPROPERTY()
+	AActor* AvatarSource = nullptr;
+	UPROPERTY()
+	AController* TargetController = nullptr;
+	UPROPERTY()
+	AController* SourceController = nullptr;
+	UPROPERTY()
+	ACharacter* TargetCharacter = nullptr;
+	UPROPERTY()
+	ACharacter* SourceCharacter = nullptr;
+	UPROPERTY()
+	FGameplayEffectContextHandle EffectContextHandle;
+};
+
 /**
  * 
  */
@@ -23,6 +50,8 @@ class MINISHOOTER_API UMiniShooterAttributeSet : public UAttributeSet
 
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockedHit, bool bCriticalHit) const;
+	void HarvestGameplayEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 
 public:
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
@@ -60,4 +89,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Category = "Combat")
 	FGameplayAttributeData FireRate;
 	ATTRIBUTE_ACCESSORS(UMiniShooterAttributeSet, FireRate)
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true), Category = "Combat")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UMiniShooterAttributeSet, IncomingDamage)
 };

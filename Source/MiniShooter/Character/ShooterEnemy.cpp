@@ -44,6 +44,12 @@ FVector AShooterEnemy::GetTargetDirection_Implementation()
 	return (Cast<AShooterAIController>(Controller)->AIPerceptionComponent->GetActorTarget()->GetActorLocation() - Weapon->GetComponentLocation()).GetSafeNormal();
 }
 
+void AShooterEnemy::Die()
+{
+	SetLifeSpan(2.f); //Harcoded
+	Super::Die();
+}
+
 // Called when the game starts or when spawned
 void AShooterEnemy::BeginPlay()
 {

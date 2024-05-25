@@ -17,6 +17,7 @@ struct FInputActionValue;
 class UInputAction;
 class UInputMappingContext;
 class AMiniShooterHud;
+class UDamageTextComponent;
 
 
 UCLASS()
@@ -28,6 +29,8 @@ public:
 	AShooterPlayerController();
 	
 	virtual void Pause() override;
+	
+	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -52,6 +55,10 @@ private:
 	TObjectPtr<UMiniShooterAbilitySystemComponent> MiniShooterAbilitySystemComponent;
 
 	UMiniShooterAbilitySystemComponent* GetASC();
+
+	//UI
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 
 	//Input
 	void OpenInventory(const FInputActionValue& InputActionValue);

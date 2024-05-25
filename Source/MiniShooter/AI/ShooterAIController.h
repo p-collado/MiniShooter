@@ -17,6 +17,7 @@ class UShooterAIPerceptionComponent;
 class UBehaviorTree;
 class UBlackboardComponent;
 
+//Delegates
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGetShotSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGettingSuspiciousSignature, float, AwarenessPercent);
 
@@ -31,7 +32,6 @@ class MINISHOOTER_API AShooterAIController : public AAIController
 	void OnTargetDetected(AActor* Actor, FAIStimulus const Stimulus);
 
 public:
-	// Sets default values for this actor's properties
 	AShooterAIController(FObjectInitializer const& ObjectInitializer);
 
 	void OnGetShot() const;
@@ -45,9 +45,7 @@ public:
 	void BroadCastAwareness(float CurrentAwareness);
 	
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
 	virtual void OnPossess(APawn* InPawn) override;
 	
 	UPROPERTY(VisibleAnywhere, Category= "GAS");
@@ -57,7 +55,6 @@ protected:
 	TObjectPtr<UAttributeSet> AttributeSet;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
@@ -80,8 +77,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Posting and Patrol Config")
 	TObjectPtr<UPostingComponent> PostingComponent;
-
-
+	
 	UPROPERTY(EditAnywhere, Category= "AIConfig")
 	UBlackboardComponent* BlackboardComponent;
 };

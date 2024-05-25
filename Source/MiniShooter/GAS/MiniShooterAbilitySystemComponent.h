@@ -6,6 +6,11 @@
 #include "AbilitySystemComponent.h"
 #include "MiniShooterAbilitySystemComponent.generated.h"
 
+/**
+ * Custom Ability System Component
+ * @param ModeAuto Reference to mode-auto ability.
+ * @param ModeSingle Reference to mode-single ability.
+ */
 
 class UShooterGameplayAbilityBase;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAbilityGunModeChangedSignature, const FString&);
@@ -20,6 +25,8 @@ public:
 	UMiniShooterAbilitySystemComponent();
 
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
+
+	//Input Execution Tag
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);
 
@@ -28,6 +35,7 @@ public:
 
 	static FGameplayTag GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 
+	//Delegate
 	FOnAbilityGunModeChangedSignature OnAbilityGunModeChangedSignature;
 
 	UPROPERTY(EditDefaultsOnly, Category="GAS|AbilityPistolConfig")

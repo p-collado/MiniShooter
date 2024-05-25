@@ -16,8 +16,13 @@ enum EAwarenessState
 	Detection
 };
 
+//Delegates definition
 DECLARE_DELEGATE_TwoParams(FOnIsSuspicionValueChange, UBehaviorTreeComponent&, bool);
 DECLARE_DELEGATE_TwoParams(FOnEnemyStateValueChange, UBehaviorTreeComponent&, EAwarenessState);
+
+/**
+ * Custom Perception Component used to set up the AI senses and store some detection variables.
+ */
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class MINISHOOTER_API UShooterAIPerceptionComponent : public UAIPerceptionComponent
@@ -32,16 +37,19 @@ public:
 	EAwarenessState GetCurrentAwarenessState();
 
 	bool StateHasChanged(EAwarenessState NewState) const;
-	
+
+	//Delegates
 	FOnIsSuspicionValueChange OnValueChange;
 	FOnEnemyStateValueChange OnStateChange;
 
+	//Getters
 	float GetCurrentAwarenessStateFromAwarenessLevel() const { return CurrentAwareness; }
 	bool GetIsSuspecting() const { return bBeSuspecting; }
 	AActor* GetActorTarget() const { return CurrentTargetActor; }
 	FVector GetLastPlayerPosition() const { return LastPlayerPosition; }
 	EAwarenessState GetCurrentAwarenessState() const { return AwarenessState; }
 
+	//Setters
 	void SetCurrentTargetActor(AActor* TargetActor) { CurrentTargetActor = TargetActor;	}
 	void SetCurrentAwareness(float NewAwareness) { CurrentAwareness = NewAwareness; }
 	void SetIsSuspecting(bool NewBool) { bBeSuspecting = NewBool; }
@@ -49,6 +57,8 @@ public:
 
 	void IncreaseSuspicion();
 	void DecreaseSuspicion();
+
+	//Timer Management
 	void ClearSuspiciousTimer();
 	void PauseSuspiciousTimer();
 	void ResumeSuspiciousTimer();

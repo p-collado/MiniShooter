@@ -8,14 +8,17 @@
 #include "MiniShooter/Interaction/CombatInterface.h"
 #include "CharacterBase.generated.h"
 
-class UGameplayAbility;
 //Forward Declarations
+class UGameplayAbility;
 class UAttributeSet;
 class UAbilitySystemComponent;
 class UDataTable;
 class UGameplayEffect;
-
 class USkeletalMeshComponent;
+
+/**
+ * @brief Character base class, it has the common features
+ */
 
 UCLASS(Abstract)
 class MINISHOOTER_API ACharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -29,6 +32,10 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
 
+	//Begin Combat Interface
+	virtual void Die() override;
+	//End Combat Interface
+
 	//Returns Attribute Set
 	UAttributeSet* GetAttributeSet() { return AttributeSet; }
 
@@ -38,7 +45,7 @@ public:
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 
 protected:
-	// Called when the game starts or when spawned
+	
 	virtual void BeginPlay() override;
 
 	virtual void InitializeInitAttributes();

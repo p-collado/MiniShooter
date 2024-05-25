@@ -25,4 +25,6 @@ public:
 	FVector GetSocketLocation();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FVector GetTargetDirection();
+
+	virtual void Die() = 0;
 };

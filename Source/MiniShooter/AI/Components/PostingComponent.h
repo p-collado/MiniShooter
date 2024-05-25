@@ -6,6 +6,11 @@
 #include "Components/ActorComponent.h"
 #include "PostingComponent.generated.h"
 
+/**
+ * Component to set a guard point
+ * @param PostingPoint The point for the enemy to stay.
+ * @param Direction Where to look
+ */
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class MINISHOOTER_API UPostingComponent : public UActorComponent
@@ -13,9 +18,8 @@ class MINISHOOTER_API UPostingComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UPostingComponent();
-
+	
 	FVector GetPostingPoint() const { return PostingPoint; }
 	FVector GetDirection() const { return Direction; }
 

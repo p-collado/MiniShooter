@@ -5,9 +5,11 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/Character.h"
 #include "MiniShooter/Character/Components/MiniShooterInputComponent.h"
 #include "MiniShooter/GAS/MiniShooterAbilitySystemComponent.h"
 #include "MiniShooter/UI/HUD/MiniShooterHud.h"
+#include "MiniShooter/UI/Widgets/DamageTextComponent.h"
 
 AShooterPlayerController::AShooterPlayerController()
 {
@@ -18,6 +20,19 @@ void AShooterPlayerController::Pause()
 {
 	Super::Pause();
 	Cast<AMiniShooterHud>(GetHUD())->PauseGame();
+}
+
+void AShooterPlayerController::ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit,
+	bool bCriticalHit)
+{
+	if (IsValid(TargetCharacter) && DamageTextComponentClass && IsLocalController())
+	{
+		UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetCharacter, DamageTextComponentClass);
+		DamageText->RegisterComponent();
+		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(),FAttachmentTransformRules::KeepRelativeTransform);
+		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		DamageText->SetDamageText(DamageAmount, bBlockedHit, bCriticalHit);
+	}
 }
 
 void AShooterPlayerController::OpenInventory(const FInputActionValue& InputActionValue)
